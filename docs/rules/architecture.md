@@ -4,6 +4,12 @@ This is an **e-commerce fullstack web app** for portfolio demonstration. Users c
 
 ## 🛠️ Tech Stack
 
+### UI Theme
+
+- **Default**: Dark theme — black background (`oklch(0.09 0 0)`)
+- **Primary/Accent**: Blue-cyan (`oklch(0.65 0.15 215)`) — blue leaning toward cyan
+- **Light mode**: Available via `.light` class on root element
+
 ### Frontend
 
 - **Framework**: Next.js 16+ (App Router)
