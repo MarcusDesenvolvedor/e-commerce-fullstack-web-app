@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 
 export default async function ProductPage({
   params,
@@ -71,6 +72,7 @@ export default async function ProductPage({
               {product.stock} in stock
             </p>
           )}
+          <AddToCartButton productId={product.id} stock={product.stock} />
         </div>
       </div>
     </div>
