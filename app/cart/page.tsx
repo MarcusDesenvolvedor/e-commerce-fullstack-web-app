@@ -102,7 +102,7 @@ export default function CartPage() {
               href="/checkout"
               className="mt-4 block w-full rounded-md bg-primary py-2 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Proceed to checkout (coming soon)
+              Proceed to checkout
             </Link>
           </div>
         </div>
