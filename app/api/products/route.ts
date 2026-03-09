@@ -5,12 +5,21 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get("categoryId");
+    const q = searchParams.get("q")?.trim();
 
     const products = await prisma.product.findMany({
       where: {
         isActive: true,
         deletedAt: null,
         ...(categoryId ? { categoryId } : {}),
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: "insensitive" as const } },
+                { description: { contains: q, mode: "insensitive" as const } },
+              ],
+            }
+          : {}),
       },
       include: {
         category: {

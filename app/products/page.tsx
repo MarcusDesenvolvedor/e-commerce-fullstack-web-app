@@ -4,9 +4,10 @@ import { prisma } from "@/lib/db";
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoryId?: string }>;
+  searchParams: Promise<{ categoryId?: string; q?: string }>;
 }) {
   const params = await searchParams;
+  const q = params.q?.trim();
 
   const [productsRaw, categories] = await Promise.all([
     prisma.product.findMany({
@@ -14,6 +15,16 @@ export default async function ProductsPage({
         isActive: true,
         deletedAt: null,
         ...(params.categoryId ? { categoryId: params.categoryId } : {}),
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: "insensitive" as const } },
+                {
+                  description: { contains: q, mode: "insensitive" as const },
+                },
+              ],
+            }
+          : {}),
       },
       include: { category: { select: { id: true, name: true, slug: true } } },
       orderBy: { createdAt: "desc" },
@@ -72,6 +83,34 @@ export default async function ProductsPage({
         </aside>
 
         <div className="min-w-0 flex-1">
+          <form
+            action="/products"
+            method="get"
+            className="mb-6 flex gap-2"
+          >
+            {params.categoryId && (
+              <input
+                type="hidden"
+                name="categoryId"
+                value={params.categoryId}
+              />
+            )}
+            <input
+              type="search"
+              name="q"
+              defaultValue={params.q}
+              placeholder="Search products by name or description..."
+              className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              aria-label="Search products"
+            />
+            <button
+              type="submit"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Search
+            </button>
+          </form>
+
           {products.length === 0 ? (
             <p className="text-muted-foreground">No products found.</p>
           ) : (

@@ -9,6 +9,7 @@ Enable users to browse the product catalog, filter by category, and view product
 ## Main Use Cases
 
 - List all active products
+- Search products by name or description
 - Filter products by category
 - View product detail by slug
 - List categories for filtering
@@ -17,7 +18,7 @@ Enable users to browse the product catalog, filter by category, and view product
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| GET | /api/products | List products (optional: ?categoryId=uuid) |
+| GET | /api/products | List products (optional: ?categoryId=uuid, ?q=search) |
 | GET | /api/products/[slug] | Get product by slug |
 | GET | /api/categories | List categories |
 
