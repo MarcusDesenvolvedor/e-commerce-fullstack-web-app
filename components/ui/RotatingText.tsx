@@ -72,7 +72,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       mainClassName,
       splitLevelClassName,
       elementLevelClassName,
-      ...rest
     },
     ref
   ) => {
@@ -207,7 +206,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
         layout
         transition={{ type: "spring", damping: 35, stiffness: 300 }}
         className={cn("inline-block overflow-hidden", mainClassName)}
-        {...rest}
       >
         <AnimatePresence
           mode={animatePresenceMode}

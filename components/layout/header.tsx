@@ -24,7 +24,7 @@ export function Header() {
   const navItems = [...BASE_NAV_ITEMS];
   return (
     <header className="sticky top-0 z-50 flex w-full justify-center px-4 pt-6 md:pt-8">
-      <div className="flex h-12 min-w-0 items-center gap-5 rounded-full border border-border/70 bg-transparent px-5 py-2 outline outline-1 outline-border/50 outline-offset-0 md:h-12 md:gap-6 md:px-6">
+      <div className="flex h-12 min-w-0 items-center gap-5 rounded-full border border-border/70 bg-black/40 px-5 py-2 outline outline-1 outline-border/50 outline-offset-0 backdrop-blur-md md:h-12 md:gap-6 md:px-6 dark:bg-black/40">
         <div className="flex items-center gap-0">
           <Link href="/" className="flex shrink-0 items-center">
             <Image

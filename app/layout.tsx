@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "../globals.css";
 import { FullPageBackground } from "@/components/layout/FullPageBackground";
+import { HomeBackgroundBody } from "@/components/layout/HomeBackgroundBody";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { cn } from "@/lib/utils";
@@ -44,10 +45,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} relative flex min-h-screen flex-col antialiased`}
       >
         <ClerkProvider>
+          <HomeBackgroundBody />
           <FullPageBackground />
-          <div className="relative z-10 flex min-h-screen flex-col">
+          <div className="relative z-10 flex min-h-screen flex-col bg-transparent">
             <Header />
-            <main className="flex-1 w-full">{children}</main>
+            <main className="flex-1 w-full bg-transparent">{children}</main>
             <Footer />
           </div>
         </ClerkProvider>
