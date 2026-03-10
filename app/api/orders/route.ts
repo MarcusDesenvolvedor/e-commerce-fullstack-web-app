@@ -3,6 +3,53 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
 import { getOrCreateCartSessionId } from "@/lib/cart-session";
 import { getOrCreateUserFromClerk } from "@/lib/clerk-user";
+import { formatAddressForShipping } from "@/lib/format-address";
+
+type AddressInput = {
+  street: string;
+  neighborhood: string;
+  number?: number | null;
+  city: string;
+  state: string;
+  country: string;
+  complement?: string | null;
+};
+
+function parseAddressBody(body: unknown): AddressInput | null {
+  const b = body as Record<string, unknown>;
+  const street = (b.street as string)?.trim();
+  const neighborhood = (b.neighborhood as string)?.trim();
+  const city = (b.city as string)?.trim();
+  const state = ((b.state as string) ?? "").trim().toUpperCase().slice(0, 2);
+  const country = ((b.country as string) ?? "").trim().toUpperCase().slice(0, 2);
+  if (!street || !neighborhood || !city || !state || !country) return null;
+  const numberRaw = b.number;
+  const number =
+    numberRaw === null || numberRaw === undefined || numberRaw === ""
+      ? undefined
+      : typeof numberRaw === "number"
+        ? numberRaw
+        : parseInt(String(numberRaw), 10);
+  const complement = (b.complement as string)?.trim() || null;
+  if (state.length !== 2 || country.length !== 2) return null;
+  if (street.length > 100 || neighborhood.length > 100 || city.length > 100)
+    return null;
+  if (
+    number != null &&
+    (isNaN(number) || number < 0 || number > 999999)
+  )
+    return null;
+  if (complement && complement.length > 100) return null;
+  return {
+    street,
+    neighborhood,
+    number: number ?? null,
+    city,
+    state,
+    country,
+    complement,
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,18 +65,82 @@ export async function POST(request: NextRequest) {
     const email =
       clerkUserData?.emailAddresses?.[0]?.emailAddress ?? "user@example.com";
     const fullName =
-      [clerkUserData?.firstName, clerkUserData?.lastName].filter(Boolean).join(" ") ||
-      "Customer";
+      [clerkUserData?.firstName, clerkUserData?.lastName]
+        .filter(Boolean)
+        .join(" ") || "Customer";
 
     const body = await request.json();
-    const shippingAddress = (body.shippingAddress as string)?.trim();
+    const addressId = body.addressId as string | undefined;
+    const addressInput = body.address as unknown;
+    const document = (body.document as string)?.trim();
+    const phone = (body.phone as string)?.trim() || null;
 
-    if (!shippingAddress || shippingAddress.length < 5) {
+    if (!document || document.length < 5) {
       return NextResponse.json(
-        { error: "Valid shipping address is required" },
+        { error: "ID document is required" },
         { status: 400 }
       );
     }
+    if (document.length > 20) {
+      return NextResponse.json(
+        { error: "Document max 20 characters" },
+        { status: 400 }
+      );
+    }
+
+    let shippingAddress: string;
+
+    const user = await getOrCreateUserFromClerk(userId, email, fullName);
+
+    if (addressId) {
+      const addr = await prisma.address.findUnique({
+        where: { id: addressId },
+      });
+      if (!addr || addr.userId !== user.id) {
+        return NextResponse.json(
+          { error: "Address not found" },
+          { status: 400 }
+        );
+      }
+      shippingAddress = formatAddressForShipping(addr);
+    } else if (addressInput) {
+      const parsed = parseAddressBody(addressInput);
+      if (!parsed) {
+        return NextResponse.json(
+          {
+            error:
+              "Valid address required: street, neighborhood, city, state (UF), country (code)",
+          },
+          { status: 400 }
+        );
+      }
+      shippingAddress = formatAddressForShipping(parsed);
+      await prisma.address.create({
+        data: {
+          userId: user.id,
+          street: parsed.street,
+          neighborhood: parsed.neighborhood,
+          number: parsed.number ?? undefined,
+          city: parsed.city,
+          state: parsed.state,
+          country: parsed.country,
+          complement: parsed.complement ?? undefined,
+        },
+      });
+    } else {
+      return NextResponse.json(
+        { error: "Address (addressId or address object) is required" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        document,
+        ...(phone !== undefined && phone !== null && { phone }),
+      },
+    });
 
     const sessionId = await getOrCreateCartSessionId();
     const cart = await prisma.cart.findFirst({
@@ -49,8 +160,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    const user = await getOrCreateUserFromClerk(userId, email, fullName);
 
     for (const item of cart.items) {
       if (item.quantity > item.product.stock) {

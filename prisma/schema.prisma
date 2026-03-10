@@ -16,6 +16,8 @@ model User {
   passwordHash String    @map("password_hash") @db.VarChar(255)
   clerkId      String?   @unique @map("clerk_id") @db.VarChar(255)
   fullName     String    @map("full_name") @db.VarChar(255)
+  document     String?   @db.VarChar(20)
+  phone        String?   @db.VarChar(20)
   isActive     Boolean   @default(true) @map("is_active")
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
@@ -24,6 +26,7 @@ model User {
   carts         Cart[]
   orders        Order[]
   refreshTokens RefreshToken[]
+  addresses     Address[]
 }
 
 model Category {
@@ -109,6 +112,22 @@ model OrderItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@map("order_items")
+}
+
+model Address {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  street       String   @db.VarChar(100)
+  neighborhood String   @db.VarChar(100)
+  number       Int?     @db.Integer
+  city         String   @db.VarChar(100)
+  state        String   @db.VarChar(2)
+  country      String   @db.VarChar(2)
+  complement   String?  @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model RefreshToken {

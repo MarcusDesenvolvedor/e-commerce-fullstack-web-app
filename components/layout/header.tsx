@@ -30,6 +30,12 @@ export function Header() {
             </Link>
             <Show when="signed-in">
               <Link
+                href="/account"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Account
+              </Link>
+              <Link
                 href="/orders"
                 className="text-muted-foreground transition-colors hover:text-foreground"
               >
