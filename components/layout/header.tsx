@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GooeyNav } from "@/components/ui/GooeyNav";
-
 const BASE_NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Products", href: "/products" },

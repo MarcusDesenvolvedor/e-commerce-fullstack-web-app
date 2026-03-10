@@ -109,6 +109,10 @@ const GOOEY_CSS = `
   transition: all 0.3s ease;
   z-index: -1;
 }
+.gooey-nav-li:hover::after {
+  opacity: 0.15;
+  transform: scale(1);
+}
 `;
 
 export function GooeyNav({
