@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist, Geist_Mono, DM_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "../globals.css";
+import { FullPageBackground } from "@/components/layout/FullPageBackground";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { cn } from "@/lib/utils";
@@ -31,13 +33,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("font-sans", dmSans.variable)}>
+      <Script
+        id="theme-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `(function(){var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.classList.add('light');document.documentElement.classList.remove('dark');}else{document.documentElement.classList.add('dark');document.documentElement.classList.remove('light');}})();`,
+        }}
+      />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} relative flex min-h-screen flex-col antialiased`}
       >
         <ClerkProvider>
-          <Header />
-          <main className="flex-1 px-6 md:px-8 lg:px-10">{children}</main>
-          <Footer />
+          <FullPageBackground />
+          <div className="relative z-10 flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1 w-full">{children}</main>
+            <Footer />
+          </div>
         </ClerkProvider>
       </body>
     </html>

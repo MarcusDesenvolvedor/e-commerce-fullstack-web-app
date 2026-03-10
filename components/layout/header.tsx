@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-transparent">
       <div className="container flex h-14 items-center px-6 md:px-8 lg:px-10">
         <Link href="/" className="mr-6 ml-6 flex items-center space-x-2 font-semibold">
           <span>E-commerce</span>
@@ -44,6 +45,7 @@ export function Header() {
             </Show>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <Show when="signed-out">
               <SignInButton mode="modal">
                 <button className="rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium ring-offset-background hover:bg-accent hover:text-accent-foreground">
